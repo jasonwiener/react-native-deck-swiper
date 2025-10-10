@@ -626,8 +626,8 @@ class Swiper extends Component {
     this.state.previousCardX.setValue(previousCardDefaultPositionX)
     this.state.previousCardY.setValue(previousCardDefaultPositionY)
     
-    // Do NOT reset opacity here instantly - it will be animated in resetTopCard
-    // or handled by the swipe animation
+    // Ensure next card opacity is reset to initial dim value
+    this.state.nextCardOpacity.setValue(0.05)
     
     // Reattach listeners
     this.state.pan.x.removeAllListeners()
@@ -692,7 +692,7 @@ class Swiper extends Component {
 
   calculateStackCardZoomStyle = (position, firstCard) => {
     const isSecondCard = position === 1
-    const opacityStyle = isSecondCard ? { opacity: this.state.nextCardOpacity} : {}
+    const opacityStyle = isSecondCard ? { opacity: this.state.nextCardOpacity} : { opacity: 0.05 }
   
     return [
       styles.card,
@@ -1130,8 +1130,8 @@ Swiper.defaultProps = {
     width: '100%',
     height: '100%'
   },
-  overlayOpacityHorizontalThreshold: width / 4,
-  overlayOpacityVerticalThreshold: height / 5,
+  overlayOpacityHorizontalThreshold: width / 8,
+  overlayOpacityVerticalThreshold: height / 10,
   pointerEvents: 'auto',
   previousCardDefaultPositionX: -width,
   previousCardDefaultPositionY: -height,
