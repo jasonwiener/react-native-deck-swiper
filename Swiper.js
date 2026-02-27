@@ -497,7 +497,6 @@ class Swiper extends Component {
   }
 
   animateStack = () => {
-    console.log('✅ Using my custom Swiper');
     const { secondCardIndex, swipedAllCards } = this.state
     let { stackSize, infinite, showSecondCard, cards } = this.props
     let index = secondCardIndex
@@ -700,11 +699,11 @@ class Swiper extends Component {
     if (this.props.stackPosition === 'right') {
       transform.push({ translateX: this.state[`stackPosition${position}`] })
     } else if (this.props.stackPosition === 'left') {
-      transform.push({ translateX: Animated.multiply(this.state[`stackPosition${position}`], -1) })
+      transform.push({ translateX: this.state[`stackPosition${position}`].interpolate({ inputRange: [0, 1], outputRange: [0, -1] }) })
     } else if (this.props.stackPosition === 'bottom') {
       transform.push({ translateY: this.state[`stackPosition${position}`] })
     } else if (this.props.stackPosition === 'top') {
-      transform.push({ translateY: Animated.multiply(this.state[`stackPosition${position}`], -1) })
+      transform.push({ translateY: this.state[`stackPosition${position}`].interpolate({ inputRange: [0, 1], outputRange: [0, -1] }) })
     }
 
     return [
