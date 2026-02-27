@@ -62,6 +62,8 @@ declare module 'react-native-deck-swiper' {
     stackScale?: number;
     stackSeparation?: number;
     stackSize?: number;
+    stackPosition?: 'top' | 'bottom' | 'left' | 'right';
+    stackOpacity?: number;
     swipeAnimationDuration?: number;
     swipeBackCard?: boolean;
     testID?: string;
