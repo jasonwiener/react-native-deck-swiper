@@ -41,7 +41,7 @@ class Swiper extends Component {
     this.state = {
       ...calculateCardIndexes(props.cardIndex, props.cards),
       pan: new Animated.ValueXY(),
-      nextCardOpacity: new Animated.Value(0.05),
+      nextCardOpacity: new Animated.Value(props.stackOpacity),
       previousCardX: new Animated.Value(props.previousCardDefaultPositionX),
       previousCardY: new Animated.Value(props.previousCardDefaultPositionY),
       swipedAllCards: false,
@@ -158,7 +158,7 @@ class Swiper extends Component {
     const animatedValueY = Math.abs(this._animatedValueY)
     const maxMovement = Math.max(animatedValueX, animatedValueY)
     const threshold = Math.max(this.props.horizontalThreshold, this.props.verticalThreshold)
-    const nextCardOpacity = Math.min(0.05 + (maxMovement / threshold) * 0.95, 1)
+    const nextCardOpacity = Math.min(this.props.stackOpacity + (maxMovement / threshold) * (1 - this.props.stackOpacity), 1)
     this.state.nextCardOpacity.setValue(nextCardOpacity)
 
     let { overlayOpacityHorizontalThreshold, overlayOpacityVerticalThreshold } = this.props
@@ -362,7 +362,7 @@ class Swiper extends Component {
       
       // Animate the next card opacity back to dim
       Animated.timing(this.state.nextCardOpacity, {
-        toValue: 0.05,
+        toValue: this.props.stackOpacity,
         duration: this.props.swipeAnimationDuration,
         useNativeDriver: true
       })
@@ -497,7 +497,6 @@ class Swiper extends Component {
   }
 
   animateStack = () => {
-    console.log('✅ Using my custom Swiper');
     const { secondCardIndex, swipedAllCards } = this.state
     let { stackSize, infinite, showSecondCard, cards } = this.props
     let index = secondCardIndex
@@ -627,7 +626,7 @@ class Swiper extends Component {
     this.state.previousCardY.setValue(previousCardDefaultPositionY)
     
     // Ensure next card opacity is reset to initial dim value
-    this.state.nextCardOpacity.setValue(0.05)
+    this.state.nextCardOpacity.setValue(this.props.stackOpacity)
     
     // Reattach listeners
     this.state.pan.x.removeAllListeners()
@@ -692,17 +691,27 @@ class Swiper extends Component {
 
   calculateStackCardZoomStyle = (position, firstCard) => {
     const isSecondCard = position === 1
-    const opacityStyle = isSecondCard ? { opacity: this.state.nextCardOpacity} : { opacity: 0.05 }
-  
+    const opacityStyle = isSecondCard ? { opacity: this.state.nextCardOpacity } : { opacity: this.props.stackOpacity }
+    const transform = [
+      { scale: this.state[`stackScale${position}`] }
+    ]
+
+    if (this.props.stackPosition === 'right') {
+      transform.push({ translateX: this.state[`stackPosition${position}`] })
+    } else if (this.props.stackPosition === 'left') {
+      transform.push({ translateX: this.state[`stackPosition${position}`].interpolate({ inputRange: [0, 1], outputRange: [0, -1] }) })
+    } else if (this.props.stackPosition === 'bottom') {
+      transform.push({ translateY: this.state[`stackPosition${position}`] })
+    } else if (this.props.stackPosition === 'top') {
+      transform.push({ translateY: this.state[`stackPosition${position}`].interpolate({ inputRange: [0, 1], outputRange: [0, -1] }) })
+    }
+
     return [
       styles.card,
       this.getCardStyle(),
       {
         zIndex: position * -1,
-        transform: [
-          { scale: this.state[`stackScale${position}`] },
-          { translateX: this.state[`stackPosition${position}`] }
-        ]
+        transform
       },
       opacityStyle,
       this.props.cardStyle
@@ -821,11 +830,20 @@ class Swiper extends Component {
   }
 
   pushCardToStack = (renderedCards, index, position, key, firstCard) => {
-    const { cards } = this.props
+    const { cards, stackCardTintColor } = this.props
     const stackCardZoomStyle = this.calculateStackCardZoomStyle(position, firstCard)
     const stackCard = this.props.renderCard(cards[index], index)
     const swipableCardStyle = this.calculateSwipableCardStyle()
     const renderOverlayLabel = this.renderOverlayLabel()
+
+    const isSecondCard = position === 1
+    const tintOpacity = isSecondCard
+      ? this.state.nextCardOpacity.interpolate({
+        inputRange: [0, 1],
+        outputRange: [1, 0]
+      })
+      : 1
+
     renderedCards.push(
       <Animated.View
         key={key}
@@ -834,6 +852,22 @@ class Swiper extends Component {
       >
         {firstCard ? renderOverlayLabel : null}
         {stackCard}
+        {!firstCard && stackCardTintColor && (
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              styles.card,
+              {
+                backgroundColor: stackCardTintColor,
+                opacity: tintOpacity,
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%'
+              }
+            ]}
+          />
+        )}
       </Animated.View>
     )
   }
@@ -987,6 +1021,9 @@ Swiper.propTypes = {
   stackScale: PropTypes.number,
   stackSeparation: PropTypes.number,
   stackSize: PropTypes.number,
+  stackPosition: PropTypes.oneOf(['top', 'bottom', 'left', 'right']),
+  stackOpacity: PropTypes.number,
+  stackCardTintColor: PropTypes.string,
   swipeAnimationDuration: PropTypes.number,
   swipeBackCard: PropTypes.bool,
   testID: PropTypes.string,
@@ -1142,6 +1179,9 @@ Swiper.defaultProps = {
   stackScale: 3,
   stackSeparation: 10,
   stackSize: 1,
+  stackPosition: 'right',
+  stackOpacity: 0.05,
+  stackCardTintColor: null,
   swipeAnimationDuration: 350,
   swipeBackCard: false,
   topCardResetAnimationFriction: 7,
