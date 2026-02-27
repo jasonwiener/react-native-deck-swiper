@@ -316,7 +316,11 @@ render () {
             onSwipedAll={() => {console.log('onSwipedAll')}}
             cardIndex={0}
             backgroundColor={'#4FD0E9'}
-            stackSize= {3}>
+            stackSize={3}
+            stackSeparation={15}
+            stackPosition="bottom"
+            stackOpacity={0.05}
+            stackCardTintColor="black">
             <Button
                 onPress={() => {console.log('oulala')}}
                 title="Press me">
