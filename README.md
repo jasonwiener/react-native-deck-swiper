@@ -102,6 +102,7 @@ With respect to bugfixes and further developments, please check the [To Do](http
 | stackAnimationTension  | number | spring animation tension (speed)                       | 40      |
 | stackPosition          | string | where the underlaying cards are stacked (top, bottom, left, right) | 'right' |
 | stackOpacity           | number | base opacity of the underlaying cards                  | 0.05    |
+| stackCardTintColor     | string | tint color for the underlaying cards                   | null    |
 
 ### Rotation animation props
 

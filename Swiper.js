@@ -830,11 +830,20 @@ class Swiper extends Component {
   }
 
   pushCardToStack = (renderedCards, index, position, key, firstCard) => {
-    const { cards } = this.props
+    const { cards, stackCardTintColor } = this.props
     const stackCardZoomStyle = this.calculateStackCardZoomStyle(position, firstCard)
     const stackCard = this.props.renderCard(cards[index], index)
     const swipableCardStyle = this.calculateSwipableCardStyle()
     const renderOverlayLabel = this.renderOverlayLabel()
+
+    const isSecondCard = position === 1
+    const tintOpacity = isSecondCard
+      ? this.state.nextCardOpacity.interpolate({
+        inputRange: [0, 1],
+        outputRange: [1, 0]
+      })
+      : 1
+
     renderedCards.push(
       <Animated.View
         key={key}
@@ -843,6 +852,22 @@ class Swiper extends Component {
       >
         {firstCard ? renderOverlayLabel : null}
         {stackCard}
+        {!firstCard && stackCardTintColor && (
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              styles.card,
+              {
+                backgroundColor: stackCardTintColor,
+                opacity: tintOpacity,
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%'
+              }
+            ]}
+          />
+        )}
       </Animated.View>
     )
   }
@@ -998,6 +1023,7 @@ Swiper.propTypes = {
   stackSize: PropTypes.number,
   stackPosition: PropTypes.oneOf(['top', 'bottom', 'left', 'right']),
   stackOpacity: PropTypes.number,
+  stackCardTintColor: PropTypes.string,
   swipeAnimationDuration: PropTypes.number,
   swipeBackCard: PropTypes.bool,
   testID: PropTypes.string,
@@ -1155,6 +1181,7 @@ Swiper.defaultProps = {
   stackSize: 1,
   stackPosition: 'right',
   stackOpacity: 0.05,
+  stackCardTintColor: null,
   swipeAnimationDuration: 350,
   swipeBackCard: false,
   topCardResetAnimationFriction: 7,
