@@ -68,7 +68,10 @@ class Swiper extends Component {
     const { props, state } = this
     const propsChanged = (
       !isEqual(props.cards, nextProps.cards) ||
-      props.cardIndex !== nextProps.cardIndex
+      props.cardIndex !== nextProps.cardIndex ||
+      props.stackPosition !== nextProps.stackPosition ||
+      props.stackOpacity !== nextProps.stackOpacity ||
+      props.stackCardTintColor !== nextProps.stackCardTintColor
     )
     const stateChanged = (
       nextState.firstCardIndex !== state.firstCardIndex ||
@@ -690,32 +693,24 @@ class Swiper extends Component {
   }
 
   calculateStackCardZoomStyle = (position, firstCard) => {
-    const isSecondCard = position === 1
-    const opacityStyle = isSecondCard ? { opacity: this.state.nextCardOpacity } : { opacity: this.props.stackOpacity }
-    const transform = [
-      { scale: this.state[`stackScale${position}`] }
-    ]
+  const isSecondCard = position === 1
+  const opacityStyle = isSecondCard
+    ? { opacity: this.state.nextCardOpacity }
+    : { opacity: this.props.stackOpacity }
 
-    if (this.props.stackPosition === 'right') {
-      transform.push({ translateX: this.state[`stackPosition${position}`] })
-    } else if (this.props.stackPosition === 'left') {
-      transform.push({ translateX: this.state[`stackPosition${position}`].interpolate({ inputRange: [0, 1], outputRange: [0, -1] }) })
-    } else if (this.props.stackPosition === 'bottom') {
-      transform.push({ translateY: this.state[`stackPosition${position}`] })
-    } else if (this.props.stackPosition === 'top') {
-      transform.push({ translateY: this.state[`stackPosition${position}`].interpolate({ inputRange: [0, 1], outputRange: [0, -1] }) })
-    }
-
-    return [
-      styles.card,
-      this.getCardStyle(),
-      {
-        zIndex: position * -1,
-        transform
-      },
-      opacityStyle,
-      this.props.cardStyle
-    ]
+  return [
+    styles.card,
+    this.getCardStyle(),
+    {
+      zIndex: position * -1,
+      transform: [
+        { translateY: Animated.multiply(this.state[`stackPosition${position}`], -1) },
+        { scale: this.state[`stackScale${position}`] }
+      ]
+    },
+    opacityStyle,
+    this.props.cardStyle
+  ]
   }
   
 
