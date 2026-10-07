@@ -287,12 +287,32 @@ class Swiper extends Component {
 
     if (!this.state.slideGesture) {
       this.props.onTapCard(this.state.firstCardIndex)
+      this.handleDoubleTap()
     }
 
     this.setState({
       labelType: LABEL_TYPES.NONE,
       slideGesture: false
     })
+  }
+
+  handleDoubleTap = () => {
+    const now = Date.now()
+    const { firstCardIndex } = this.state
+    const DOUBLE_TAP_DELAY = 300
+
+    if (
+      this.lastTapTime &&
+      now - this.lastTapTime < DOUBLE_TAP_DELAY &&
+      this.lastTapCardIndex === firstCardIndex
+    ) {
+      this.props.onDoubleTapCard(firstCardIndex)
+      this.lastTapTime = null
+      this.lastTapCardIndex = null
+    } else {
+      this.lastTapTime = now
+      this.lastTapCardIndex = firstCardIndex
+    }
   }
 
   getOnSwipeDirectionCallback = (animatedValueX, animatedValueY) => {
@@ -993,6 +1013,7 @@ Swiper.propTypes = {
   onSwipedTop: PropTypes.func,
   onSwiping: PropTypes.func,
   onTapCard: PropTypes.func,
+  onDoubleTapCard: PropTypes.func,
   onTapCardDeadZone: PropTypes.number,
   outputCardOpacityRangeX: PropTypes.array,
   outputCardOpacityRangeY: PropTypes.array,
@@ -1080,6 +1101,7 @@ Swiper.defaultProps = {
   onSwipedTop: cardIndex => { },
   onSwiping: () => { },
   onTapCard: (cardIndex) => { },
+  onDoubleTapCard: (cardIndex) => { },
   onTapCardDeadZone: 5,
   outputCardOpacityRangeX: [0.8, 1, 1, 1, 0.8],
   outputCardOpacityRangeY: [0.8, 1, 1, 1, 0.8],

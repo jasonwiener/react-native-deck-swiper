@@ -40,6 +40,7 @@ declare module 'react-native-deck-swiper' {
     onSwipedTop?: (cardIndex: number) => void;
     onSwiping?: (x: number, y: number) => void;
     onTapCard?: (cardIndex: number) => void;
+    onDoubleTapCard?: (cardIndex: number) => void;
     onTapCardDeadZone?: number;
     outputCardOpacityRangeX?: [number, number, number, number, number];
     outputCardOpacityRangeY?: [number, number, number, number, number];
