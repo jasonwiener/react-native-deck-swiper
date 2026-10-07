@@ -78,6 +78,7 @@ With respect to bugfixes and further developments, please check the [To Do](http
 | dragStart         | func   | function to be called when drag start                                       |        |
 | dragEnd           | func   | function to be called when drag end
 | onTapCard         | func   | function to be called when tapping a card. it receives the tapped card index          |         | (cardIndex) => {} |
+| onDoubleTapCard   | func   | function to be called when double tapping a card. it receives the tapped card index   |         | (cardIndex) => {} |
 | onTapCardDeadZone | number | maximum amount of movement before a tap is no longer recognized as a tap              | 5       |
 
 ### Swipe animation props
